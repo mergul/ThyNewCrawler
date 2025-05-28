@@ -96,6 +96,32 @@ public class CloudflareSeleniumTest {
         System.out.println("Bypass complete: " + eventFiringWebDriver.getCurrentUrl());
     }
 
+    @Test
+    public void testWithManualCaptchaSolve() {
+        // 1) Navigate to the page containing the Google reCAPTCHA
+        String url = "https://example.com/page-with-recaptcha";
+        eventFiringWebDriver.get(url);
+
+        // 2) Wait for the reCAPTCHA widget to render
+        WebDriverWait wait = new WebDriverWait(eventFiringWebDriver, Duration.ofSeconds(15));
+        // (adjust selector if needed)
+        wait.until(d -> ((JavascriptExecutor)d)
+            .executeScript("return document.querySelector('.g-recaptcha') != null"));
+
+        // 3) Pause and prompt user to solve CAPTCHA
+        System.out.println("=== CAPTCHA DETECTED ===");
+        System.out.println("Please solve the CAPTCHA in the browser window,");
+        System.out.println("then come back here and press ENTER to continue...");
+        new Scanner(System.in).nextLine();
+
+        // 4) After user presses ENTER, you can continue your assertions
+        //    e.g. wait for some element on the post-CAPTCHA page:
+        wait.until(d -> ((JavascriptExecutor)d)
+            .executeScript("return document.querySelector('#protected-content') != null"));
+
+        System.out.println("CAPTCHA solved. Page title is: " + eventFiringWebDriver.getTitle());
+    }
+
     @After
     public void tearDown() {
         if (eventFiringWebDriver != null) {
